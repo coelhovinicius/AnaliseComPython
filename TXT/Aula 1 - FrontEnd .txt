@@ -1,0 +1,234 @@
+Aula 1 - Front-end com Figma, HTML, CSS
+
+Projeto: Fazer uma aplicação web que receba o endereço de um Shorts do Youtube, extraia o texto e resuma.
+
+Será utilizado o Figma com JavaScript, HTML e CSS. Node.
+
+- Criar o arquivo onde quer que seja criado o projeto;
+- No terminal, inserir o comando "npm create vite@latest" dentro da pasta desejada;
+- Abrir o projeto no VSCode;
+- Os arquivos counter.js, javascript.svg e style.css podem ser excluídos. Também pode ser excluído o arquivo .gitignore, caso não vá usar GIT;
+- Dentro do projeto no VSCode, criar uma pasta separada chamada "web". Colocar o arquivo "main.js" dentro dessa pasta;
+- Dentro do arquivo "index.html", alterar o script no body para "src = web/main.js";
+- Criar uma pastar de configuração chamada ".vscode". Esta é uma pasta oculta de configurações;
+- Dentro da pasta ".vscode", criar dois arquivos:
+
+> extensions.json - colocar o código:
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "PKief.material-icon-theme",
+    "rocketseat.theme-omni"
+  ]
+}
+
+
+> settings.json:
+{
+  // editor
+  "editor.wordWrap": "on",
+  "editor.fontSize": 18,
+  "editor.lineHeight": 30,
+  "editor.tabSize": 2,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "editor.minimap.enabled": false,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "files.autoSave": "afterDelay",
+
+  // explorer
+  "explorer.compactFolders": false,
+
+  // workbench
+  "workbench.editor.enablePreview": false,
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.colorTheme": "Omni",
+
+  // prettier
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.enable": true,
+  "prettier.singleQuote": false,
+  "prettier.tabWidth": 2,
+  "prettier.semi": false,
+
+  // terminal
+  "terminal.integrated.fontSize": 16,
+  "terminal.integrated.profiles.windows": {
+    "Git Bash": {
+      "source": "Git Bash"
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "Git Bash"
+}
+
+- No terminal, na pasta utilizada, insira o comando "npm i" para instalar os pacotes necessários;
+
+Estilização - Definir as regras de estilização:
+- Criar uma pasta "styles" dentro da pasta "web"; Definir os estilos da página;
+- Dentro de "styles", criar o arquivo "base.css"; - Definir a base da aplicação;
+- Dentro o arquivo "main.js", colocar:
+
+/*Importa os estilos de formatação da pasta styles*/
+import "./styles/base.css";
+import "./styles/app.css";
+import "./styles/form.css.
+
+- Estilizar o arquivo "base.css":
+body {
+  /**Nome da Regra e o valor da regra*/
+  margin: 0; /*Espaçamento externo*/
+  padding: 0; /*Espaçamento interno*/
+
+  box-sizing: border-box;
+  background-color: #121214;
+  color: #ffffff;
+
+  width: 100%;
+  height: 100vh;
+
+  /*Faz o conteúdo ficar no centro da tela*/
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /*Alinha verticalmente*/
+  align-items: center; /*Alinha horizontalmente*/
+}
+
+- Estilizar "app.css":
+
+/*Chama o ID app e pega as informações de dentro de app para fazer as estilizações*/
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#app > h1 {
+  color: #996dfe;
+  margin-top: -5px;
+  user-select: none;
+}
+
+/*#app > img {
+  width: 64px;
+}*/
+
+#app > h2 {
+  align-self: flex-start;
+  margin-top: 64px;
+}
+
+#app > p {
+  align-self: flex-start;
+  text-align: justify;
+  width: 512px;
+  margin-top: -5px;
+}
+
+/*Classes*/
+#app .placeholder {
+  color: #7c7c8a;
+  user-select: none;
+}
+
+
+- Estilizar form.css:
+
+/*Formatação do alinhamento do formulário*/
+#form {
+  margin-top: 64px;
+  display: flex;
+  gap: 12px;
+}
+
+/*Formatação da caixa de input*/
+#form > input {
+  height: 48px;
+  width: 450px;
+  border: none;
+  color: #fff;
+  background-color: #202024;
+  border-radius: 5px;
+  padding: 0 12px;
+  font-size: 16px;
+}
+
+/*Formatação quando o foco está na caixa de input*/
+#form > input:focus {
+  outline: 2px solid #8257e5;
+}
+
+/*Formatação se o input for válido*/
+#form > input:valid {
+  background-color: #202024;
+}
+
+/*Formatação do botão*/
+#form button {
+  height: 48px;
+  width: 48px;
+  border: none;
+  border-radius: 5px;
+  background-color: #8257e5;
+
+  cursor: pointer; /*Faz o ponteiro ficar como um mãozinha*/
+  transition: background-color 0.2s;
+}
+
+#form > button:hover {
+  background-color: #633bbc;
+}
+
+#form > button i {
+  font-size: 24px;
+  color: #fff;
+}
+
+- Index.html:
+> Usa o phosphoricons.com como biblioteca de ícones;
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Shorts Summary</title>
+  </head>
+  <body>
+    <div id="app">
+      <img src="./logo.svg" alt="Logo" class="placeholder" />
+      <h1>Shorts Summary</h1>
+
+      <form id="form">
+        <input
+          type="url"
+          id="url"
+          placeholder="URL do vídeo"
+          class="placeholder"
+        />
+        <button title="Resumir">
+          <i class="ph ph-play"></i>
+        </button>
+      </form>
+
+      <h2 class="placeholder">Resumo</h2>
+      <p class="placeholder">Escolha um short para resumir</p>
+    </div>
+    <script type="module" src="web/main.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  </body>
+</html>
+
+- Rodar a aplicação pelo terminal, dentro da pasta do projeto, no caso, "nlwia" com o comando "npm run web", sendo "web" a pasta que criamos e inserimos os arquivos.
+
+

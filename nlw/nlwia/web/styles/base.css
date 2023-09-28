@@ -1,0 +1,24 @@
+body {
+  /**Nome da Regra e o valor da regra*/
+  margin: 0; /*Espaçamento externo*/
+  padding: 0; /*Espaçamento interno*/
+
+  box-sizing: border-box;
+  background-color: #121214;
+  color: #ffffff;
+
+  width: 100%;
+  height: 100vh;
+
+  /*Faz o conteúdo ficar no centro da tela*/
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /*Alinha verticalmente*/
+  align-items: center; /*Alinha horizontalmente*/
+}
+
+body,
+button,
+input {
+  font-family: "Roboto", sans-serif;
+}

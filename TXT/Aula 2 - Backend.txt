@@ -1,0 +1,108 @@
+Aula 2 - Back-end com Node.js
+
+O Node.js foi criado para executar JavaScript dentro dos navegadores.
+Independência entre o back-end e o front-end.
+
+A aplicação irá buscar o ID do vídeo do YouTube, executar as ações do back-end e exibir o sumário.
+
+Será utilizado o método GET.
+
+Pastas:
+- WEB - Front-end;
+- SERVER - Back-end.
+
+Instalar bibliotecas Express, Cors, Axios e ytdl-core:
+- npm i express cors axios ytdl-core@4.10.0.
+
+- No arquivo package.json, tirar o símbolo de acento circunflexo da dependência ytdl-core. As demais, fica a mesma. Isso especifica que será usada a versão exata do ytdl-core.
+
+- Criar a pasta "server" o arquivo "index.js" dentro dessa pasta.
+
+- Para rodar o Node Server, rodar o comando no terminal:
+node server/index.js;
+
+- Para não ter que ficar ligando e desligando o server a cada vez que fizer uma mudança, rodar o comando no terminal:
+node --watch server/index.js;
+
+- No arquivo index.js, colocar:
+
+import cors from "cors"
+import express from "express"
+
+import { download } from "./download.js"
+
+/*Constante "app" que irá iniciar o express*/
+const app = express()
+app.use(cors())
+
+/*Pega o parâmetro de ID e exibe (request, response)*/
+app.get("/summary/:id", (request, response) => {
+  download(request.params.id) // Chama a função de download
+  response.json({ result: "Download do vídeo realizado com sucesso!" })
+})
+
+/*Escuta as requisições / exibe uma frase dentro das aspas*/
+app.listen(3333, () => console.log("Server is running on port 3333"))
+
+
+- Criar uma pasta de nome "tmp" na raíz do projeto;
+
+
+- Criar um arquivo de nome "download.js" na pasta "server" e incluir:
+
+import ytdl from "ytdl-core"
+import fs from "fs"
+
+export const download = (videoId) => {
+  const videoURL = "https://www.youtube.com/shorts/" + videoId
+  console.log("Realizando o download do vídeo: " + videoId)
+
+  ytdl(videoURL, { quality: "lowestaudio", filter: "audioonly" })
+    .on("info", (info) => {
+      const seconds = info.formats[0].approxDurationMs / 1000
+      console.log(seconds)
+
+      if (seconds > 60) {
+        throw new Error("A duração desse vídeo é maior que 60 segundos.")
+      }
+    })
+    .on("end", () => {
+      console.log("Download do vídeo finalizado.")
+    })
+    .on("error", (error) => {
+      console.log(
+        "Não foi possível fazer o download do vídeo. Detalhes do erro:",
+        error
+      )
+    })
+    .pipe(fs.createWriteStream("./tmp/audio.mp4"))
+}
+/*export function download(){}*/
+
+
+
+- Arquivo package.json:
+{
+  "name": "nlwia",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "web": "vite",
+    "server": "node --watch --no-warnings server/index.js"
+  },
+  "devDependencies": {
+    "vite": "^4.4.5"
+  },
+  "dependencies": {
+    "axios": "^1.5.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "ytdl-core": "4.10.0"
+  }
+}
+
+- Agora, para rodar o servidor npm, podemos utilizar diretamente a sintaxe "npm run server" no terminal;
+
+- Para rodar a aplicação web, "npm run web";
+

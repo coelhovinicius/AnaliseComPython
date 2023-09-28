@@ -1,0 +1,49 @@
+/*Formatação do alinhamento do formulário*/
+#form {
+  margin-top: 64px;
+  display: flex;
+  gap: 12px;
+}
+
+/*Formatação da caixa de input*/
+#form > input {
+  height: 48px;
+  width: 450px;
+  border: none;
+  color: #fff;
+  background-color: #202024;
+  border-radius: 5px;
+  padding: 0 12px;
+  font-size: 16px;
+}
+
+/*Formatação quando o foco está na caixa de input*/
+#form > input:focus {
+  outline: 2px solid #8257e5;
+}
+
+/*Formatação se o input for válido*/
+#form > input:valid {
+  background-color: #202024;
+}
+
+/*Formatação do botão*/
+#form button {
+  height: 48px;
+  width: 48px;
+  border: none;
+  border-radius: 5px;
+  background-color: #8257e5;
+
+  cursor: pointer; /*Faz o ponteiro ficar como um mãozinha*/
+  transition: background-color 0.2s;
+}
+
+#form > button:hover {
+  background-color: #633bbc;
+}
+
+#form > button i {
+  font-size: 24px;
+  color: #fff;
+}

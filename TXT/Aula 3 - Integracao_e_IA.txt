@@ -1,0 +1,201 @@
+Aula 3 - Integração E2E e uso de IA
+
+- Serão utilizados:
+	> Whisper, da OpenAI;
+	> Bard, da Microsft;
+	> Transformers.js;
+	> Hugging Face - https://hugginface.co/models;
+
+- Bibliotecas para instalar no terminal do VSCode:
+	> npm i @xenova/transformers fluent-ffmpeg ffmpeg-static node-wav.
+
+- Rodar o servidor e a api (server e web):
+	> No terminal, rodar "npm run server" - backend - http://localhost:5173/;
+	> Abrir mais um terminal e rodar "npm run web" - frontend - http://localhost:3333/....
+
+
+- Criar o arquivo "form.js" dentro da pasta web/styles e colocar:
+
+import { server } from "./server.js"
+
+// Constante para recuperar o formulário para observar se há algum evendo de submit e capturá-lo
+const form = document.querySelector("#form") // Recupera o id "form" do "index.html"
+const input = document.querySelector("#url") // Recupera o valor do id "url" que o usuário forneceu e o atribui à constante "input"
+const content = document.querySelector("#content")
+
+// Ouve o form aguardando o submit assíncrono
+form.addEventListener("submit", async (event) => {
+  event.preventDefault() // Garante que a página não seja automaticamente recarregada após o submit
+  content.classList.add("placeholder")
+
+  const videoURL = input.value // Captura o valor da constante "input" e atribui à constante "videoURL"
+  //console.log("URL DO VÍDEO: ", videoURL) // Exibe no console
+
+  // Condição IF para verificar se não há a palavra "shorts" incluída à URL fornecida pelo usuário
+  if (!videoURL.includes("shorts")) {
+    //console.log("NÃO É UM SHORT!")
+    // Exibe no console - o "return" serve para interromper a execução da condição
+    return (content.textContent = "ESSE VÍDEO NÃO PARECE SER UM SHORT!")
+  }
+
+  // Selecionar só o ID do vídeo - Utiliza o "/shorts" como parâmetro para separar o texto fornecido
+  const [_, params] = videoURL.split("/shorts/") // O Underline omite a posição no array
+  const [videoID] = params.split("?si") // Separa o ID necessário do restante do texto e atribui a uma array
+
+  //console.log(videoId)
+  content.textContent = "Obtendo o texto do áudio..."
+
+  const transcription = await server.get("/summary/" + videoID) // Função assíncrona
+
+  content.textContent = "Realizando o resumo..."
+
+  //content.textContent = transcription.data.result // Retorna os resultados da pasta "data" da biblioteca do Axios
+
+  const summary = await server.post("/summary", {
+    text: transcription.data.result,
+  })
+
+  content.textContent = summary.data.result
+  //content.textContent = transcription.data.result
+  content.classList.remove("placeholder")
+})
+
+
+
+- Criar o arquivo "server.js" dentro da pasta web e colocar:
+
+import axios from "axios" // Biblioteca para conectar o front e backend
+
+export const server = axios.create({
+  baseURL: "http://localhost:3333", // URL base
+})
+
+
+
+- Criar uma pasta "utils" dentro da pasta "server";
+
+
+
+- Criar o arquivo "summary.js" dentro da pasta "utils" e colocar:
+
+export const summaryExample =
+  "O JavaScript é uma linguagem de programação voltada para o desenvolvimento web."
+
+
+
+- Criar o arquivo "transcription.js" dentro de "utils" e colocar:
+
+export const transcriptionExample = `
+O JavaScript é uma linguagem de programação voltada para o desenvolvimento web, 
+criada originalmente para funcionar do lado do usuário, ou seja, nos navegadores. 
+Junto do HTML e do CSS, é uma das principais tecnologias da web permitindo 
+a criação de páginas interativas com elementos dinâmicos.
+`
+
+
+
+- Dentro da pasta "server" criar o arquivo "summarize.js" e colocar:
+
+import { pipeline } from "@xenova/transformers"
+
+import { summaryExample } from "./utils/summary.js"
+
+export async function summarize(text) {
+  try {
+    // return summaryExample
+
+    console.log("Realizando o resumo...")
+
+    const generator = await pipeline(
+      "summarization",
+      "Xenova/distilbart-cnn-12-6"
+    )
+
+    const output = await generator(text)
+
+    console.log("Resumo concluído com sucesso!")
+    return output[0].summary_text
+  } catch (error) {
+    console.log("Não foi possível realizar o resumo", error)
+    throw new Error(error)
+  }
+}
+
+
+
+
+- Dentro da pasta "server" criar o arquivo "transcribe.js" e colocar:
+
+import { pipeline } from "@xenova/transformers"
+
+import { transcriptionExample } from "./utils/transcription.js"
+
+export async function transcribe(audio) {
+  try {
+    //return transcriptionExample
+
+    console.log("Realizando a transcrição...")
+
+    const transcribe = await pipeline(
+      "automatic-speech-recognition",
+      "Xenova/whisper-small" // Modelo de AI do Hugging Face para ser usado no app
+    )
+
+    const transcription = await transcribe(audio, {
+      chunk_length_s: 30,
+      stride_length_s: 5,
+      language: "portuguese",
+      task: "transcribe",
+    })
+
+    console.log("Transcrição finalizada com sucesso.")
+    return transcription?.text.replace("[Música]", "")
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+
+
+- Dentro da pasta "server", criar o arquivo "convert.js" e colocar:
+
+import fs from "fs"
+import wav from "node-wav"
+import ffmpeg from "fluent-ffmpeg"
+import ffmpegStatic from "ffmpeg-static"
+
+const filePath = "./tmp/audio.mp4"
+const outputPath = filePath.replace(".mp4", ".wav")
+
+export const convert = () =>
+  new Promise((resolve, reject) => {
+    console.log("Convertendo o vídeo...") // 1h16m50s
+
+    ffmpeg.setFfmpegPath(ffmpegStatic)
+    ffmpeg()
+      .input(filePath) // Arquivo a ser manipulado
+      .audioFrequency(16000) // Frequência compreensível para o áudio
+      .audioChannels(1) // Audio terá 1 canal
+      .format("wav")
+      .on("end", () => {
+        const file = fs.readFileSync(outputPath)
+        const fileDecoded = wav.decode(file)
+
+        const audioData = fileDecoded.channelData[0]
+        const floatArray = new Float32Array(audioData)
+
+        console.log("Vídeo convertido com sucesso!")
+
+        resolve(floatArray)
+        fs.unlinkSync(outputPath) // Deleta o arquivo após processar
+      })
+      .on("error", (error) => {
+        console.log("Erro ao converter o vídeo", error)
+        reject(error)
+      })
+      .save(outputPath)
+  })
+
+
+
+
